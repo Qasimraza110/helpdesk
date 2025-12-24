@@ -15,7 +15,10 @@ def sent_invites(emails, send_welcome_mail_to_user=True):
             ).insert()
 
             if send_welcome_mail_to_user:
-                user.send_welcome_mail_to_user()
+                try:
+                    user.send_welcome_mail_to_user()
+                except Exception as e:
+                    frappe.log_error(f"Error sending welcome email to {email}: {str(e)}")
 
         frappe.get_doc(
             {

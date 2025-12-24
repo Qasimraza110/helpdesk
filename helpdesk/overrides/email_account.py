@@ -7,6 +7,19 @@ from frappe.email.receive import InboundMail
 
 
 class CustomEmailAccount(EmailAccount):
+    @property
+    def default_sender(self):
+        """Override to handle None email_id"""
+        import email.utils
+        email_id = self.get("email_id")
+        name = self.name or "Helpdesk"
+        if not email_id:
+            return name
+        try:
+            return email.utils.formataddr((name, email_id))
+        except (TypeError, AttributeError):
+            return name
+
     def get_inbound_mails(self) -> list[InboundMail]:
         """retrive and return inbound mails."""
         mails = []
@@ -14,6 +27,8 @@ class CustomEmailAccount(EmailAccount):
         def process_mail(messages, append_to=None):
             for index, message in enumerate(messages.get("latest_messages", [])):
                 try:
+                    if not message:
+                        continue
                     _msg = message_from_string(
                         message.decode("utf-8", errors="replace")
                     )

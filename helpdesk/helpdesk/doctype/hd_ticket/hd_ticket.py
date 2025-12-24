@@ -127,7 +127,8 @@ class HDTicket(Document):
             "doc": self.as_dict(),
         }
         for key, value in args.items():
-            template_args[key] = value
+            if value is not None:
+                template_args[key] = value
         return frappe.render_template(
             default_content if is_email_content_empty(content) else content,
             template_args,
